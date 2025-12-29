@@ -1,322 +1,621 @@
 # Momentum - Fitness Dashboard
 
-A high-performance, offline-first, and privacy-centric fitness dashboard for Android. Aggregate data from Strava, Garmin, and file imports, providing comprehensive analytics, visualizations, and training insights.
+<div align="center">
 
-## 🎯 Features
+![Momentum Logo](https://via.placeholder.com/200x200/FC4C02/FFFFFF?text=M)
 
-### Core Functionality
-- **Offline-First**: 100% functional offline with existing data
-- **Data Aggregation**: Import from Strava API, Garmin, and file imports (.fit, .gpx, .tcx)
-- **Privacy-Centric**: All data stored locally, no cloud sync required
-- **Clean Design**: Data-focused, non-orange design language
+**A powerful, offline-first fitness tracking app built with Flutter**
 
-### Data Sources
-- **Strava Integration**: OAuth2 authentication, automatic sync, background sync
-- **File Import**: Support for .gpx, .tcx files (.fit coming soon)
-- **Garmin**: File import support
+[![Flutter](https://img.shields.io/badge/Flutter-3.38.5-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.10.4-0175C2?logo=dart)](https://dart.dev)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-### Analytics & Metrics
-- **Activity Statistics**: Distance, time, elevation, pace, power, heart rate
-- **Personal Records**: Automatic detection of PRs across all distances
-- **Zone Analysis**: Heart rate, pace, and power zone distribution
-- **Grade Adjusted Pace (GAP)**: Normalized pace accounting for elevation
-- **Relative Effort**: Strava-like effort calculation based on HR zones
-- **Fitness & Freshness**: TRIMP-based fitness, fatigue, and form tracking
-- **Projected Times**: Predict finish times for 5K, 10K, Half, and Marathon based on recent performance
+</div>
 
-### Visualizations
-- **Interactive Maps**: MapLibre-based maps with GPS track visualization
-- **Enhanced Graphs**: 
-  - Distance/time-based X-axis
-  - Formatted values (pace, HR, power, etc.)
-  - Interactive scrubbing (tap/drag to explore)
-  - Visual scrubber indicator
-  - Multiple graph types: Elevation, HR, Power, Cadence, Pace, Speed
-- **Multi-line Charts**: Fitness, Fatigue, and Form trends
+## 📱 Overview
 
-### Training Insights
-- **Activity Streak**: Track consecutive days with activities
-- **Monthly Overview**: Activity count, active days, current streak
-- **Training Log**: Calendar view of all activities
-- **Advanced Analytics**: Long-term fitness trends and patterns
+Momentum is a comprehensive fitness dashboard that aggregates data from Strava, file imports, and provides detailed analytics, visualizations, and training insights. Built with Flutter for cross-platform support, it offers a beautiful, Strava-inspired interface with powerful offline capabilities.
 
-### Performance Optimizations
-- **Map Rendering**: Douglas-Peucker algorithm reduces points by 80-95%
-- **Database Management**: Automatic cleanup of old activities, stream compression
-- **Responsive Design**: Adapts to phones, tablets, and large screens
-- **Memory Management**: Efficient caching, low-memory device support
-- **Battery Optimization**: Smart background sync, efficient rendering
+## 📸 Screenshots
 
-## 📱 Screenshots
+<div align="center">
 
-*Screenshots coming soon*
+### Home Screen
+![Home Screen](docs/screenshots/home.png)
+*Dashboard with weekly stats and activity trends*
 
-## 🚀 Getting Started
+### Activity Feed
+![Activity Feed](docs/screenshots/feed.png)
+*List of all activities with quick stats*
+
+### Activity Detail
+![Activity Detail](docs/screenshots/detail.png)
+*Detailed view with maps and charts*
+
+### Analytics
+![Analytics](docs/screenshots/analytics.png)
+*Heart rate zones and personal records*
+
+### Strava Auth
+![Strava Auth](docs/screenshots/strava.png)
+*Easy OAuth integration*
+
+</div>
+
+> **Note**: Screenshots coming soon! To add your own:
+> 1. Take screenshots of the app running
+> 2. Save them in `docs/screenshots/` directory
+> 3. Update the paths above
+
+### ✨ Key Features
+
+- 🚴 **Strava Integration** - OAuth2 authentication with automatic activity sync
+- 📊 **Interactive Charts** - Elevation, heart rate, pace, power, and cadence graphs
+- 🗺️ **GPS Maps** - Visualize your routes with interactive maps
+- 📈 **Analytics Dashboard** - Weekly, monthly, and yearly statistics
+- ❤️ **Heart Rate Zones** - Zone distribution analysis with visual charts
+- 🏆 **Personal Records** - Automatic PR detection for standard distances
+- 📁 **File Import** - Support for GPX and TCX files
+- 🔒 **Privacy-First** - All data stored locally, no cloud sync required
+- 🌙 **Dark Mode** - Full dark theme support
+
+## 🎯 App Structure
+
+```
+┌─────────────────────────────────────────┐
+│         Bottom Navigation Bar           │
+├─────────────────────────────────────────┤
+│  🏠 Home  │  🏃 Feed  │  ➕ Record  │  🔍 Explore  │  👤 Profile  │
+└─────────────────────────────────────────┘
+```
+
+### 🏠 Home Screen
+**Features:**
+- 📊 Weekly statistics cards (distance, time, elevation, activities)
+- 📈 Monthly overview with totals
+- 📉 Activity trend chart (last 30 days)
+- ⚡ Quick actions:
+  - 📁 Import Files (GPX/TCX)
+  - 🔄 Sync with Strava
+
+**Data Displayed:**
+- Total distance (km)
+- Total time (hours/minutes)
+- Elevation gain (meters)
+- Activity count
+- Daily distance trend graph
+
+### 📋 Activity Feed Screen
+**Features:**
+- 📜 Chronological list of all activities
+- 🔍 Search functionality
+- 🔽 Filter by sport type
+- 📅 Date and time display
+- 📏 Distance and duration summary
+- 👆 Tap to view full details
+
+**Activity Cards Show:**
+- Sport type icon
+- Activity name
+- Date and time
+- Distance
+- Duration
+- Quick stats
+
+### 🗺️ Activity Detail Screen
+**Features:**
+- 🗺️ **GPS Route Map**: Interactive map with route polyline
+  - Start marker (green)
+  - End marker (red)
+  - Auto-zoom to route bounds
+  
+- 📊 **Interactive Charts**:
+  - Elevation Profile (meters over distance)
+  - Heart Rate (bpm over distance)
+  - Pace/Speed (min/km or km/h)
+  - Power (watts, if available)
+  
+- 📈 **Statistics Grid**:
+  - Distance, Time, Elevation
+  - Average Pace
+  - Average/Max Heart Rate
+  - Average/Max Power
+
+### 📊 Analytics Screen (Explore)
+**Features:**
+- ❤️ **Heart Rate Zones Chart**: Bar chart showing time in each zone
+  - Zone 1 (50-60%): Recovery
+  - Zone 2 (60-70%): Aerobic
+  - Zone 3 (70-80%): Tempo
+  - Zone 4 (80-90%): Threshold
+  - Zone 5 (90-100%): VO2 Max
+  
+- 📈 **Activity Trend**: Time series chart of daily distance
+- 🏆 **Personal Records**: List of all PRs with:
+  - Distance label
+  - Time achieved
+  - Pace
+  - Activity name and date
+
+### 👤 Profile Screen
+**Features:**
+- 👤 User profile header
+- 📊 Activity statistics cards
+- ❤️ Heart rate zones visualization
+- 🏆 Personal records display
+- ⚙️ Settings access
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or later
-- Android SDK 36+ (Android 16)
-- Kotlin 1.9.0+
-- JDK 17+
 
-### Installation
+- ✅ **Flutter SDK**: 3.38.5 or later ([Install Flutter](https://flutter.dev/docs/get-started/install))
+- ✅ **Dart SDK**: 3.10.4 or later (included with Flutter)
+- ✅ **Android Studio** or **VS Code** with Flutter extensions
+- ✅ **Android SDK** (for Android builds)
+- ✅ **Xcode** (for iOS builds, macOS only)
 
-1. Clone the repository:
+### Installation (5 minutes)
+
+1. **Clone and enter directory:**
+   ```bash
+   git clone https://github.com/yourusername/momentum.git
+   cd momentum
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Generate database code:**
+   ```bash
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+
+4. **Run the app:**
+   ```bash
+   # Connect Android device or start emulator
+   flutter run
+   ```
+
+### Building APK
+
+**Release build (for distribution):**
 ```bash
-git clone https://github.com/yourusername/momentum.git
-cd momentum
+flutter build apk --release
 ```
+📱 APK location: `build/app/outputs/flutter-apk/app-release.apk`
 
-2. Open in Android Studio:
-   - File → Open → Select the `momentum` directory
-
-3. Configure Strava API (optional):
-   - Get API credentials from [Strava Developers](https://www.strava.com/settings/api)
-   - Add to `app/src/main/java/com/momentum/fitness/data/config/AppConfig.kt` or use secure storage
-
-4. Build and run:
-   - Click Run or press `Shift+F10`
-
-### First Run
-
-1. **Set Up Heart Rate Zones**: Go to Settings → Heart Rate Zones
-   - Configure your 5 HR zones (Zone 1-5 max values)
-
-2. **Set Functional Thresholds** (optional but recommended):
-   - **FTP (Functional Threshold Power)**: For cycling activities
-   - **FTPa (Functional Threshold Pace)**: For running activities
-
-3. **Connect Strava** (optional):
-   - Go to Settings → Connections → Strava
-   - Click "Connect" and authorize the app
-   - Enable "Auto-Sync" for background updates
-
-4. **Import Activities**:
-   - Use "Import Activity File" button on Dashboard
-   - Or connect Strava for automatic sync
-
-## 📊 Features in Detail
-
-### Relative Effort Calculation
-
-Momentum uses a Strava-like algorithm to calculate relative effort:
-
-- **HR Zone-Based**: Time spent in each zone contributes differently
-- **Exponential Scaling**: Higher HR zones contribute exponentially more
-- **Power Support**: For cycling, uses power data when available (TSS-like)
-- **Normalized**: Accounts for duration and intensity
-
-**Zone Multipliers**:
-- Zone 1 (50-60% max HR): 0.1x
-- Zone 2 (60-70% max HR): 0.3x
-- Zone 3 (70-80% max HR): 0.6x
-- Zone 4 (80-90% max HR): 1.0x
-- Zone 5 (90-100% max HR): 1.5x
-
-### Projected Times
-
-Predicts finish times for standard distances based on:
-- **Recent Performance**: Last 30-90 days of running activities
-- **HR Zone Analysis**: Effort level normalization
-- **Distance Curves**: Uses Riegel formula with adjustments
-- **FTP Integration**: Uses Functional Threshold Pace when available
-
-**Supported Distances**:
-- 5K (5,000m)
-- 10K (10,000m)
-- Half Marathon (21,097.5m)
-- Marathon (42,195m)
-
-**Confidence Levels**:
-- **High**: Close distance match + 5+ sample activities
-- **Medium**: Close distance match + 2+ sample activities
-- **Low**: 1+ sample activity
-- **Very Low**: Extrapolated from FTP only
-
-### Enhanced Graphs
-
-**Features**:
-- **X-Axis Options**: Distance (km) or Time (hours:minutes)
-- **Formatted Values**: All metrics properly formatted with units
-- **Interactive Scrubbing**: Tap or drag to explore the activity
-- **Visual Feedback**: Vertical line and point indicator
-- **Info Card**: Shows formatted values at scrubbed position
-- **Color Coding**: Each graph type has distinct colors
-
-**Graph Types**:
-- Elevation Profile (m)
-- Heart Rate (bpm)
-- Power (W)
-- Cadence (rpm)
-- Pace (min/km) - Running activities
-- Speed (km/h) - Cycling activities
-
-### Map Optimization
-
-- **Point Reduction**: Douglas-Peucker algorithm
-- **Smart Sampling**: Max 1000 points per map
-- **Performance**: 80-95% reduction in rendering load
-- **Visual Quality**: Maintains route shape while reducing points
-- **Start/End Markers**: Visual indicators for route start (green) and end (red)
-
-### Database Management
-
-- **Automatic Cleanup**: Removes activities older than 2 years
-- **Stream Compression**: Old activities (>90 days) get reduced stream data
-- **Size Monitoring**: Tracks database size and activity/stream counts
-- **Manual Cleanup**: User-triggered cleanup in Settings
-- **Batch Processing**: Processes deletions in batches to avoid memory issues
-
-**Configuration**:
-- Default retention: 2 years (730 days)
-- Max stream points per activity: 2000
-- Max database size: 500 MB (auto-cleanup trigger)
-- Stream sampling rate: Every 5th point for old activities
-
-### Responsive Design
-
-- **Screen Size Detection**: Small (<600dp), Medium (600-840dp), Large (>840dp)
-- **Adaptive Layouts**: Different layouts for phones vs tablets
-- **Dynamic Sizing**: Map and graph heights adjust to screen size
-- **Density-Independent Units**: Uses `dp` and `sp` throughout
-- **Tablet Optimization**: Multi-column layouts for tablets
-
-## 🏗️ Architecture
-
-### Tech Stack
-- **Language**: Kotlin 100%
-- **UI**: Jetpack Compose 100%
-- **Architecture**: MVVM (Model-View-ViewModel)
-- **Dependency Injection**: Hilt
-- **Database**: Room (SQLite)
-- **Networking**: Retrofit + OkHttp
-- **Charts**: Vico
-- **Maps**: MapLibre Compose
-- **Background Tasks**: WorkManager
-- **Date/Time**: kotlinx-datetime
-- **File Parsing**: SimpleXML (GPX/TCX)
-
-### Project Structure
-
+**Debug build (for testing):**
+```bash
+flutter build apk --debug
 ```
-app/src/main/java/com/momentum/fitness/
-├── data/
-│   ├── api/              # API interfaces (Strava)
-│   ├── config/             # App configuration, secure storage
-│   ├── database/           # Room entities, DAOs, converters
-│   ├── model/              # Data models (SportType, zones, etc.)
-│   ├── network/            # Network interceptors (retry logic)
-│   ├── parser/             # File parsers (GPX, TCX, FIT)
-│   ├── repository/         # Data repositories
-│   ├── service/            # Business logic services
-│   ├── util/               # Calculators, utilities
-│   └── work/               # WorkManager workers
-├── di/                     # Dependency injection modules
-├── ui/
-│   ├── component/          # Reusable UI components
-│   │   ├── graph/         # Graph components
-│   │   ├── map/           # Map components
-│   │   └── zone/          # Zone analysis cards
-│   ├── navigation/        # Navigation setup
-│   ├── screen/            # Screen composables and ViewModels
-│   ├── theme/             # Material Design theme
-│   └── util/              # UI utilities, formatters
-└── MainActivity.kt         # Main entry point
+📱 APK location: `build/app/outputs/flutter-apk/app-debug.apk`
+
+**Install on connected device:**
+```bash
+adb install build/app/outputs/flutter-apk/app-release.apk
 ```
 
 ## 🔧 Configuration
 
 ### Strava API Setup
 
-1. Create a Strava app at https://www.strava.com/settings/api
-2. Set redirect URI: `momentum://strava`
-3. Add credentials via Settings → Connections → Strava
-   - Or configure in `AppConfig` (not recommended for production)
+**Step 1: Create Strava Application**
 
-### Heart Rate Zones
+1. Go to [Strava API Settings](https://www.strava.com/settings/api)
+2. Click **"Create App"**
+3. Fill in:
+   - **Application Name**: Momentum (or your choice)
+   - **Category**: Training
+   - **Website**: (optional)
+   - **Application Description**: (optional)
+4. **Important**: Set **Authorization Callback Domain** to: `momentum`
+5. Click **"Create"**
+6. Copy your **Client ID** and **Client Secret**
 
-Configure in Settings → Heart Rate Zones:
-- Zone 1 Max: Typically 60% of max HR
-- Zone 2 Max: Typically 70% of max HR
-- Zone 3 Max: Typically 80% of max HR
-- Zone 4 Max: Typically 90% of max HR
-- Zone 5 Max: Typically 100% of max HR
+**Step 2: Connect in App**
 
-### Functional Thresholds
+1. Open Momentum app
+2. Navigate to **Home** screen
+3. Tap **"Sync with Strava"** button
+4. Enter your **Client ID** and **Client Secret**
+5. Tap **"Connect to Strava"**
+6. Browser will open - authorize the app
+7. Copy the authorization code from the URL
+8. Paste code in the app dialog
+9. Activities will start syncing automatically
 
-**FTP (Functional Threshold Power)**:
-- The highest power you can sustain for ~1 hour
-- Used for power zone analysis and cycling effort calculation
+**Step 3: Verify Sync**
 
-**FTPa (Functional Threshold Pace)**:
-- The fastest pace you can sustain for ~1 hour
-- Format: Minutes:Seconds per km
-- Used for pace zone analysis and running projections
+- Check **Activity Feed** screen for imported activities
+- Activities include: GPS tracks, heart rate, power, cadence data
+- Sync happens automatically after initial setup
 
-## 📈 Data Models
+### File Import
 
-### ActivityEntity
-- Basic activity information (name, type, date, distance, time, etc.)
-- Source tracking (Strava, file import, etc.)
-- Summary metrics (avg/max HR, power, cadence, etc.)
+**Import GPX/TCX Files:**
 
-### ActivityStreamEntity
-- Time-series data points
-- GPS coordinates, altitude, HR, power, cadence, speed
-- Time offset from activity start
+1. Tap **"Import Files"** on Home screen
+2. Select one or multiple files from your device
+3. Files will be automatically parsed and imported
+4. Check Activity Feed to see imported activities
 
-### PersonalRecordEntity
-- Automatically detected PRs
-- Distance, time, pace records per sport type
+**Supported Formats:**
+- ✅ `.gpx` - GPS Exchange Format (fully supported)
+- ✅ `.tcx` - Training Center XML (fully supported)
+- 🚧 `.fit` - Garmin FIT format (coming soon)
 
-### UserSettingsEntity
-- Heart rate zones
-- Functional thresholds (FTP, FTPa)
-- Strava connection info
+**File Requirements:**
+- Files must contain valid GPS track data
+- Heart rate, power, and cadence data are optional
+- Activities are automatically detected and categorized
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+- **Framework**: Flutter 3.38.5
+- **Language**: Dart 3.10.4
+- **State Management**: Riverpod 2.6.1
+- **Database**: Drift 2.29.0 (SQLite)
+- **Charts**: fl_chart 0.66.2
+- **Maps**: flutter_map 7.0.2
+- **HTTP**: Dio 5.4.1
+- **OAuth**: Custom implementation with url_launcher
+
+### Project Structure
+
+```
+lib/
+├── database/           # Drift database setup
+│   ├── database.dart
+│   └── database.g.dart
+├── models/             # Data models
+│   └── activity.dart
+├── providers/          # Riverpod providers
+│   ├── activities_provider.dart
+│   ├── analytics_provider.dart
+│   ├── database_provider.dart
+│   ├── file_import_provider.dart
+│   ├── personal_records_provider.dart
+│   └── strava_provider.dart
+├── screens/            # App screens
+│   ├── activity_detail/
+│   ├── explore/
+│   ├── feed/
+│   ├── home/
+│   ├── profile/
+│   ├── strava_auth/
+│   └── training/
+├── services/           # Business logic
+│   ├── file_import_service.dart
+│   ├── strava_service.dart
+│   └── export_service.dart
+├── widgets/            # Reusable widgets
+│   ├── activity_chart.dart
+│   ├── activity_map.dart
+│   └── heart_rate_zones_chart.dart
+├── theme/             # App theming
+│   └── app_theme.dart
+└── navigation/        # Navigation setup
+    └── main_navigation.dart
+```
+
+## 📊 Features in Detail
+
+### Strava Integration
+
+**OAuth2 Authentication:**
+- Secure token-based authentication
+- No password storage required
+- Automatic token refresh (tokens valid ~1 year)
+
+**Data Synchronization:**
+- ✅ Import all activities from Strava
+- ✅ Full activity metadata (distance, time, elevation, etc.)
+- ✅ GPS track data (lat/lng coordinates)
+- ✅ Heart rate streams
+- ✅ Power data (for cycling)
+- ✅ Cadence data
+- ✅ Speed/pace data
+- ✅ Elevation profiles
+
+**Sync Features:**
+- Manual sync trigger
+- Automatic sync after authentication
+- Duplicate detection (won't re-import existing activities)
+- Batch import (handles multiple activities efficiently)
+
+### Activity Charts
+
+Interactive charts powered by `fl_chart`:
+
+- **Elevation Profile**: GPS elevation over distance
+- **Heart Rate**: HR zones and trends
+- **Pace/Speed**: Running and cycling pace visualization
+- **Power**: Cycling power data (if available)
+- **Time Series**: Activity trends over time
+- **Multi-Metric**: Compare multiple metrics simultaneously
+
+### GPS Maps
+
+- **Route Visualization**: Interactive maps with OpenStreetMap
+- **Start/End Markers**: Visual indicators for activity start (green) and end (red)
+- **Route Polyline**: Colored route line following GPS track
+- **Auto Zoom**: Automatic bounds calculation
+
+### Analytics
+
+- **Weekly Statistics**: Distance, time, elevation, activity count
+- **Monthly Statistics**: Monthly totals and averages
+- **Activity Trends**: 30-day activity trend visualization
+- **Heart Rate Zones**: Zone distribution with bar charts
+- **Personal Records**: Automatic PR detection for:
+  - 1K, 5K, 10K
+  - Half Marathon (21.1K)
+  - Marathon (42.2K)
+
+### Personal Records
+
+Automatically detects and tracks:
+- Best times for standard distances
+- Pace records
+- Distance-based PRs
+- Sport-specific records
 
 ## 🔐 Privacy & Security
 
-- **Local Storage**: All data stored locally on device
-- **Encrypted Credentials**: Strava credentials stored in Android Keystore
+- **Local Storage**: All data stored locally using SQLite (Drift)
 - **No Cloud Sync**: Data never leaves your device
-- **Offline-First**: Full functionality without internet connection
-- **Secure Storage**: Uses EncryptedSharedPreferences for sensitive data
+- **Offline-First**: Full functionality without internet
+- **Secure Credentials**: Strava tokens stored securely using SharedPreferences
+- **No Tracking**: No analytics or tracking services
 
-## 🐛 Known Issues
+## 📦 Dependencies
 
-- FIT file import: Coming soon (GPX and TCX fully supported)
-- Garmin API: File import only (API integration planned)
-- Projected times: Requires recent running activities for accuracy
+### Core
+- `flutter_riverpod` - State management
+- `drift` - Local database
+- `drift_dev` - Database code generation
 
-## 🚧 Roadmap
+### UI & Visualization
+- `fl_chart` - Beautiful charts
+- `flutter_map` - Map visualization
+- `latlong2` - Geographic coordinates
 
+### Data & Networking
+- `dio` - HTTP client
+- `xml` - XML parsing (GPX/TCX)
+- `shared_preferences` - Local storage
+- `url_launcher` - OAuth flow
+
+### Utilities
+- `intl` - Internationalization
+- `file_picker` - File selection
+- `path_provider` - File system access
+- `permission_handler` - Android permissions
+
+## 🛠️ Development
+
+### Setup Development Environment
+
+1. **Install Flutter:**
+   ```bash
+   # Check Flutter installation
+   flutter doctor
+   
+   # Install missing dependencies as shown
+   ```
+
+2. **Clone and Setup:**
+   ```bash
+   git clone https://github.com/yourusername/momentum.git
+   cd momentum
+   flutter pub get
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+
+3. **Run the App:**
+   ```bash
+   # Debug mode
+   flutter run
+   
+   # Release mode
+   flutter run --release
+   
+   # Specific device
+   flutter run -d <device-id>
+   ```
+
+### Code Generation
+
+The app uses code generation for the database. After modifying models:
+
+```bash
+# Watch mode (auto-regenerate on changes)
+flutter pub run build_runner watch
+
+# One-time generation
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Clean and regenerate
+flutter clean
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### Building
+
+```bash
+# Android APK
+flutter build apk --release
+
+# Android App Bundle (for Play Store)
+flutter build appbundle --release
+
+# iOS (macOS only)
+flutter build ios --release
+```
+
+### Database Migrations
+
+When modifying database schema:
+
+1. Update `lib/models/activity.dart`
+2. Increment `schemaVersion` in `lib/database/database.dart`
+3. Add migration logic in `migration` getter
+4. Regenerate code: `flutter pub run build_runner build --delete-conflicting-outputs`
+
+## 🐛 Troubleshooting
+
+### Build Issues
+
+**Android SDK not found:**
+```bash
+# macOS/Linux
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
+
+# Then build
+flutter build apk --release
+```
+
+**Database code not generated:**
+```bash
+flutter clean
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+**Dependencies conflicts:**
+```bash
+flutter pub upgrade
+flutter pub get
+```
+
+**File picker errors:**
+- Ensure `file_picker` version is 8.0.0 or higher
+- Run `flutter pub upgrade file_picker`
+
+### Strava Integration
+
+**OAuth not working:**
+- ✅ Verify callback domain is set to `momentum` in Strava app settings
+- ✅ Check that Client ID and Secret are correct
+- ✅ Ensure internet connection is available
+- ✅ Check that `url_launcher` package is properly configured
+
+**Activities not syncing:**
+- ⚠️ Check Strava API rate limits (600 requests per 15 minutes)
+- ⚠️ Verify token hasn't expired (tokens last ~1 year)
+- ⚠️ Check app logs: `flutter logs`
+- ⚠️ Try manual sync from Home screen
+
+**Token expired:**
+- Re-authenticate via "Sync with Strava" button
+- Enter authorization code when prompted
+- Tokens will auto-refresh when near expiration
+
+### Database Issues
+
+**Database errors:**
+```bash
+# Reset database (WARNING: Deletes all data)
+# Delete the database file on device or emulator
+# App will recreate it on next launch
+```
+
+**Migration errors:**
+- Increment `schemaVersion` in `database.dart`
+- Add migration logic in `migration` getter
+- Regenerate code with build_runner
+
+### Performance
+
+**Slow chart rendering:**
+- Charts are optimized for up to 2000 data points
+- Large activities may take a moment to render
+- Consider reducing stream data for old activities
+
+**Large database:**
+- Database automatically manages size
+- Old activities (>2 years) can be cleaned up
+- Stream data is compressed for old activities
+
+## 🗺️ Roadmap
+
+### Short Term
 - [ ] FIT file import support
-- [ ] Garmin API integration
-- [ ] Export data functionality
-- [ ] Custom distance projections
+- [ ] Background sync for Strava
+- [ ] Export activities to GPX/TCX
+- [ ] Activity search and filtering
+- [ ] Settings screen implementation
+
+### Medium Term
 - [ ] Training plans
-- [ ] Social features (optional)
+- [ ] Workout builder
+- [ ] Advanced analytics (power zones, training load)
+- [ ] Custom distance projections
+- [ ] Activity sharing
+
+### Long Term
 - [ ] Wear OS companion app
+- [ ] iOS improvements
+- [ ] Web support
+- [ ] Social features (optional)
+- [ ] Cloud backup (optional, privacy-preserving)
+
+## 📊 Feature Comparison
+
+| Feature | Momentum | Strava | Garmin Connect |
+|---------|----------|--------|----------------|
+| Offline-First | ✅ | ❌ | ❌ |
+| Privacy (Local Storage) | ✅ | ❌ | ❌ |
+| Free Analytics | ✅ | Limited | Limited |
+| Heart Rate Zones | ✅ | ✅ | ✅ |
+| Personal Records | ✅ | ✅ | ✅ |
+| GPS Maps | ✅ | ✅ | ✅ |
+| Activity Charts | ✅ | ✅ | ✅ |
+| File Import | ✅ | Limited | ✅ |
+| Strava Sync | ✅ | N/A | Limited |
+| No Subscription | ✅ | ❌ | ❌ |
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## 📝 License
 
-[Add your license here]
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- Strava API for activity data
-- MapLibre for map rendering
-- Vico for chart library
-- All open-source contributors
+- [Strava API](https://developers.strava.com/) for activity data
+- [fl_chart](https://github.com/imaNNeoFighT/fl_chart) for beautiful charts
+- [flutter_map](https://github.com/fleaflet/flutter_map) for map rendering
+- [Drift](https://drift.simonbinder.eu/) for database management
+- [Riverpod](https://riverpod.dev/) for state management
 
 ## 📞 Support
 
-For issues, questions, or feature requests, please open an issue on GitHub.
+For issues, questions, or feature requests:
+- Open an issue on [GitHub](https://github.com/yourusername/momentum/issues)
+- Check existing issues and discussions
 
 ---
 
-**Built with ❤️ for athletes who value privacy and performance**
+<div align="center">
+
+**Built with ❤️ using Flutter**
+
+*For athletes who value privacy, performance, and beautiful design*
+
+</div>
