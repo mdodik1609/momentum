@@ -76,6 +76,9 @@ dependencies:
   
   # URL Launcher
   url_launcher: ^6.2.5
+  
+  # Background tasks
+  workmanager: ^0.5.2
 
 dev_dependencies:
   flutter_test:

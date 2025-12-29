@@ -7,6 +7,23 @@ import '../../database/database.dart';
 import '../../models/activity.dart' show SportType;
 import '../activity_detail/activity_detail_screen.dart';
 
+/// Provider for filtered activities
+final filteredActivitiesProvider = Provider.family<List<Activity>, String>((ref, query) {
+  final activitiesAsync = ref.watch(activitiesProvider);
+  return activitiesAsync.when(
+    data: (activities) {
+      if (query.isEmpty) return activities;
+      final lowerQuery = query.toLowerCase();
+      return activities.where((activity) {
+        return activity.name.toLowerCase().contains(lowerQuery) ||
+               activity.sportType.displayName.toLowerCase().contains(lowerQuery);
+      }).toList();
+    },
+    loading: () => [],
+    error: (_, __) => [],
+  );
+});
+
 /// Provider for sport type filter
 final sportTypeFilterProvider = StateProvider<SportType?>((ref) => null);
 
@@ -18,6 +35,15 @@ class FeedScreen extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final sportFilter = ref.watch(sportTypeFilterProvider);
@@ -32,7 +58,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             onPressed: () {
               showSearch(
                 context: context,
-                delegate: _ActivitySearchDelegate(ref),
+                delegate: ActivitySearchDelegate(ref),
               );
             },
           ),
@@ -80,14 +106,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                         : 'No activities yet',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 8),
-                  if (sportFilter == null)
-                    Text(
-                      'Import activities or sync with Strava',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.stravaGray,
-                      ),
-                    ),
                 ],
               ),
             );
@@ -174,10 +192,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 }
 
 /// Search delegate for activities
-class _ActivitySearchDelegate extends SearchDelegate<String> {
+class ActivitySearchDelegate extends SearchDelegate<String> {
   final WidgetRef ref;
 
-  _ActivitySearchDelegate(this.ref);
+  ActivitySearchDelegate(this.ref);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -293,3 +311,4 @@ class _ActivitySearchDelegate extends SearchDelegate<String> {
     return '${(meters / 1000).toStringAsFixed(2)} km';
   }
 }
+

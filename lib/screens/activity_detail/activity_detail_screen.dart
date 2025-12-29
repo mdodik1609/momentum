@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../database/database.dart';
 import '../../providers/database_provider.dart';
+import '../../providers/export_provider.dart';
 import '../../widgets/activity_chart.dart';
 import '../../widgets/activity_map.dart';
 import '../../theme/app_theme.dart';
@@ -76,6 +78,63 @@ class _ActivityDetailScreenState extends ConsumerState<ActivityDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_activity!.name),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              final exportService = ref.read(exportServiceProvider);
+              try {
+                File? exportedFile;
+                if (value == 'gpx') {
+                  exportedFile = await exportService.exportToGpx(widget.activityId);
+                } else if (value == 'tcx') {
+                  exportedFile = await exportService.exportToTcx(widget.activityId);
+                }
+                
+                if (exportedFile != null && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Exported to ${exportedFile.path}'),
+                      backgroundColor: AppColors.stravaGreen,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Export failed: $e'),
+                      backgroundColor: AppColors.stravaRed,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'gpx',
+                child: Row(
+                  children: [
+                    Icon(Icons.file_download, size: 20),
+                    SizedBox(width: 8),
+                    Text('Export as GPX'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'tcx',
+                child: Row(
+                  children: [
+                    Icon(Icons.file_download, size: 20),
+                    SizedBox(width: 8),
+                    Text('Export as TCX'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

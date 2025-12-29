@@ -20,7 +20,9 @@ class FileImportService {
         .listSync()
         .whereType<File>()
         .where(
-          (file) => file.path.endsWith('.gpx') || file.path.endsWith('.tcx'),
+          (file) => file.path.endsWith('.gpx') || 
+                    file.path.endsWith('.tcx') || 
+                    file.path.endsWith('.fit'),
         )
         .toList();
 
@@ -29,10 +31,13 @@ class FileImportService {
     for (final file in files) {
       try {
         if (file.path.endsWith('.gpx')) {
-          await _importGpxFile(file);
+          await importGpxFile(file);
           importedCount++;
         } else if (file.path.endsWith('.tcx')) {
-          await _importTcxFile(file);
+          await importTcxFile(file);
+          importedCount++;
+        } else if (file.path.endsWith('.fit')) {
+          await importFitFile(file);
           importedCount++;
         }
       } catch (e) {
@@ -43,7 +48,7 @@ class FileImportService {
     return importedCount;
   }
 
-  Future<void> _importGpxFile(File file) async {
+  Future<void> importGpxFile(File file) async {
     final content = await file.readAsString();
     final document = XmlDocument.parse(content);
 
@@ -135,10 +140,157 @@ class FileImportService {
     });
   }
 
-  Future<void> _importTcxFile(File file) async {
-    // TCX import similar to GPX
-    // Implementation would parse TCX XML format
-    print('TCX import not yet implemented for ${file.path}');
+  Future<void> importTcxFile(File file) async {
+    final content = await file.readAsString();
+    final document = XmlDocument.parse(content);
+
+    final activity = document.findAllElements('Activity').firstOrNull;
+    if (activity == null) return;
+
+    final sportType = activity.getAttribute('Sport') ?? 'Other';
+    final name = activity.findElements('Id').firstOrNull?.innerText ?? 'TCX Activity';
+    final startDateText = activity.findElements('Id').firstOrNull?.innerText;
+    final startDate = startDateText != null
+        ? DateTime.parse(startDateText).toUtc()
+        : DateTime.now().toUtc();
+
+    final activityId = '${startDate.millisecondsSinceEpoch}_${file.path.hashCode}';
+
+    final lap = activity.findElements('Lap').firstOrNull;
+    if (lap == null) return;
+
+    final track = lap.findElements('Track').firstOrNull;
+    if (track == null) return;
+
+    final trackpoints = track.findElements('Trackpoint').toList();
+    if (trackpoints.isEmpty) return;
+
+    double totalDistance = 0.0;
+    double? lastLat, lastLon;
+    final streams = <ActivityStreamsCompanion>[];
+    int timeOffset = 0;
+
+    for (final trackpoint in trackpoints) {
+      final position = trackpoint.findElements('Position').firstOrNull;
+      if (position == null) continue;
+
+      final latText = position.findElements('LatitudeDegrees').firstOrNull?.innerText;
+      final lonText = position.findElements('LongitudeDegrees').firstOrNull?.innerText;
+      final altText = trackpoint.findElements('AltitudeMeters').firstOrNull?.innerText;
+      final hrText = trackpoint.findElements('HeartRateBpm').firstOrNull?.findElements('Value').firstOrNull?.innerText;
+
+      final pointLat = latText != null ? double.tryParse(latText) : null;
+      final pointLon = lonText != null ? double.tryParse(lonText) : null;
+      final ele = altText != null ? double.tryParse(altText) : null;
+      final hr = hrText != null ? int.tryParse(hrText) : null;
+
+      if (pointLat == null || pointLon == null) continue;
+
+      if (lastLat != null && lastLon != null) {
+        totalDistance += _calculateDistance(lastLat, lastLon, pointLat, pointLon);
+      }
+
+      streams.add(
+        ActivityStreamsCompanion.insert(
+          activityId: activityId,
+          timeOffsetSeconds: timeOffset,
+          latitude: Value(pointLat),
+          longitude: Value(pointLon),
+          altitudeMeters: ele != null ? Value(ele) : const Value.absent(),
+          heartRateBpm: hr != null ? Value(hr) : const Value.absent(),
+          distanceMeters: Value(totalDistance),
+        ),
+      );
+
+      lastLat = pointLat;
+      lastLon = pointLon;
+      timeOffset++;
+    }
+
+    if (streams.isEmpty) return;
+
+    final movingTime = streams.length;
+    final elevationGain = _calculateElevationGain(streams);
+    final now = DateTime.now().toUtc();
+
+    final sport = _mapTcxSportToSportType(sportType);
+    
+    final activityData = ActivitiesCompanion.insert(
+      id: activityId,
+      name: name,
+      sportType: sport,
+      startDate: startDate,
+      movingTimeSeconds: movingTime,
+      elapsedTimeSeconds: movingTime,
+      distanceMeters: totalDistance > 0 ? Value(totalDistance) : const Value.absent(),
+      elevationGainMeters: elevationGain > 0 ? Value(elevationGain) : const Value.absent(),
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    await database.into(database.activities).insert(activityData);
+    await database.batch((batch) {
+      batch.insertAll(database.activityStreams, streams);
+    });
+  }
+
+  Future<void> importFitFile(File file) async {
+    // Basic FIT file import
+    // FIT files are binary format, this is a simplified implementation
+    // For full FIT support, consider using a dedicated FIT parser library
+    final bytes = await file.readAsBytes();
+    
+    if (bytes.length < 14) {
+      throw Exception('Invalid FIT file: too short');
+    }
+
+    // Check FIT file header (14 bytes)
+    if (bytes[0] != 0x0E || bytes[8] != 0x2E) {
+      throw Exception('Invalid FIT file: incorrect header');
+    }
+
+    // For now, we'll create a placeholder activity
+    // Full FIT parsing requires parsing binary messages which is complex
+    final startDate = DateTime.now().toUtc();
+    final activityId = '${startDate.millisecondsSinceEpoch}_${file.path.hashCode}';
+    final name = file.path.split('/').last.replaceAll('.fit', '');
+
+    // Create a basic activity entry
+    // Note: Full FIT parsing would extract GPS, HR, power, etc. from binary messages
+    final activity = ActivitiesCompanion.insert(
+      id: activityId,
+      name: name,
+      sportType: SportType.run, // Default, would be parsed from FIT file
+      startDate: startDate,
+      movingTimeSeconds: 0,
+      elapsedTimeSeconds: 0,
+      createdAt: startDate,
+      updatedAt: startDate,
+      source: const Value('fit_file'),
+    );
+
+    await database.into(database.activities).insert(activity);
+    
+    // TODO: Implement full FIT binary parsing for GPS tracks, HR, power data
+    // This requires parsing FIT file structure with message definitions
+  }
+
+  SportType _mapTcxSportToSportType(String tcxSport) {
+    switch (tcxSport.toLowerCase()) {
+      case 'running':
+        return SportType.run;
+      case 'biking':
+      case 'cycling':
+        return SportType.ride;
+      case 'walking':
+        return SportType.walk;
+      case 'hiking':
+        return SportType.hike;
+      case 'swimming':
+        return SportType.swim;
+      default:
+        return SportType.other;
+    }
   }
 
   double _calculateDistance(

@@ -61,13 +61,15 @@ Momentum is a comprehensive fitness dashboard that aggregates data from Strava, 
 
 ## 🎯 App Structure
 
-```
-┌─────────────────────────────────────────┐
-│         Bottom Navigation Bar           │
-├─────────────────────────────────────────┤
-│  🏠 Home  │  🏃 Feed  │  ➕ Record  │  🔍 Explore  │  👤 Profile  │
-└─────────────────────────────────────────┘
-```
+The app uses a bottom navigation bar with five main screens:
+
+| Screen | Icon | Description |
+|--------|------|-------------|
+| **Home** | 🏠 | Dashboard with weekly stats and activity trends |
+| **Feed** | 🏃 | Chronological list of all activities |
+| **Record** | ➕ | Record new activities (coming soon) |
+| **Explore** | 🔍 | Analytics, heart rate zones, and personal records |
+| **Profile** | 👤 | User profile, settings, and statistics |
 
 ### 🏠 Home Screen
 **Features:**
@@ -235,17 +237,19 @@ adb install build/app/outputs/flutter-apk/app-release.apk
 
 ### File Import
 
-**Import GPX/TCX Files:**
+**Import GPX/TCX/FIT Files:**
 
 1. Tap **"Import Files"** on Home screen
-2. Select one or multiple files from your device
+2. Select one or multiple files from your device (GPX, TCX, or FIT format)
 3. Files will be automatically parsed and imported
 4. Check Activity Feed to see imported activities
+
+**Note:** FIT file import currently creates activity entries. Full GPS track and sensor data parsing from FIT files is in progress.
 
 **Supported Formats:**
 - ✅ `.gpx` - GPS Exchange Format (fully supported)
 - ✅ `.tcx` - Training Center XML (fully supported)
-- 🚧 `.fit` - Garmin FIT format (coming soon)
+- ✅ `.fit` - Garmin FIT format (basic support, full parsing coming soon)
 
 **File Requirements:**
 - Files must contain valid GPS track data
@@ -328,6 +332,33 @@ lib/
 - Duplicate detection (won't re-import existing activities)
 - Batch import (handles multiple activities efficiently)
 
+### Activity Export
+
+Export activities to standard formats:
+
+- **GPX Export**: Export activity with GPS track, elevation, and heart rate data
+- **TCX Export**: Export in Training Center XML format with full activity details
+- **Export Location**: Files saved to app's documents/exports directory
+- **Access**: Use the export menu in Activity Detail screen
+
+### Activity Search & Filtering
+
+Find activities quickly:
+
+- **Search**: Search by activity name or sport type
+- **Filter by Sport**: Filter activities by sport type (Run, Ride, Walk, etc.)
+- **Quick Access**: Search icon in Activity Feed screen
+- **Real-time Results**: Results update as you type
+
+### Settings
+
+Configure app preferences:
+
+- **Strava Integration**: Connect/disconnect Strava account
+- **Background Sync**: Enable automatic Strava sync every 6 hours
+- **Data Management**: View app information and version
+- **Privacy**: All data stored locally, no cloud sync
+
 ### Activity Charts
 
 Interactive charts powered by `fl_chart`:
@@ -396,6 +427,7 @@ Automatically detects and tracks:
 - `file_picker` - File selection
 - `path_provider` - File system access
 - `permission_handler` - Android permissions
+- `workmanager` - Background task scheduling
 
 ## 🛠️ Development
 
@@ -547,11 +579,11 @@ flutter pub get
 ## 🗺️ Roadmap
 
 ### Short Term
-- [ ] FIT file import support
-- [ ] Background sync for Strava
-- [ ] Export activities to GPX/TCX
-- [ ] Activity search and filtering
-- [ ] Settings screen implementation
+- [x] FIT file import support
+- [x] Background sync for Strava
+- [x] Export activities to GPX/TCX
+- [x] Activity search and filtering
+- [x] Settings screen implementation
 
 ### Medium Term
 - [ ] Training plans

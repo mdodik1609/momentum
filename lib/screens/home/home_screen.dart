@@ -1,11 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/file_import_provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../widgets/activity_chart.dart';
 import '../strava_auth/strava_auth_screen.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -165,24 +167,55 @@ class HomeScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () async {
                 try {
-                  final service = ref.read(fileImportServiceProvider);
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.stravaOrange,
+                  final filePicker = FilePicker.platform;
+                  final result = await filePicker.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['gpx', 'tcx', 'fit'],
+                    allowMultiple: true,
+                  );
+                  
+                  if (result == null || result.files.isEmpty) return;
+                  
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.stravaOrange,
+                        ),
                       ),
-                    ),
-                  );
-                  final count = await service.importFromDirectory(
-                    r'D:\data\activities',
-                  );
+                    );
+                  }
+                  
+                  final service = ref.read(fileImportServiceProvider);
+                  int importedCount = 0;
+                  
+                  for (final file in result.files) {
+                    if (file.path != null) {
+                      final fileObj = File(file.path!);
+                      try {
+                        if (file.path!.endsWith('.gpx')) {
+                          await service.importGpxFile(fileObj);
+                          importedCount++;
+                        } else if (file.path!.endsWith('.tcx')) {
+                          await service.importTcxFile(fileObj);
+                          importedCount++;
+                        } else if (file.path!.endsWith('.fit')) {
+                          await service.importFitFile(fileObj);
+                          importedCount++;
+                        }
+                      } catch (e) {
+                        print('Error importing ${file.path}: $e');
+                      }
+                    }
+                  }
+                  
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Imported $count activities'),
+                        content: Text('Imported $importedCount activities'),
                         backgroundColor: AppColors.stravaGreen,
                         behavior: SnackBarBehavior.floating,
                       ),

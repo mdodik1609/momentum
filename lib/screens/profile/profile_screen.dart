@@ -4,6 +4,7 @@ import '../../theme/app_theme.dart';
 import '../../providers/personal_records_provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../widgets/heart_rate_zones_chart.dart';
+import '../settings/settings_screen.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -20,7 +21,12 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -161,7 +167,12 @@ class ProfileScreen extends ConsumerWidget {
               title: const Text('Settings'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // Navigate to settings
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
               },
             ),
           ],
