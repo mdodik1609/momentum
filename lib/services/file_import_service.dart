@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:xml/xml.dart';
 import 'package:drift/drift.dart';
-import '../models/activity.dart';
+import '../models/activity.dart' show SportType;
 import '../database/database.dart';
 
 class FileImportService {
@@ -66,6 +66,9 @@ class FileImportService {
         ? DateTime.parse(timeText).toUtc()
         : DateTime.now().toUtc();
 
+    // Generate unique activity ID
+    final activityId = '${startDate.millisecondsSinceEpoch}_${file.path.hashCode}';
+
     // Calculate distance and time
     double totalDistance = 0.0;
     double? lastLat, lastLon;
@@ -74,11 +77,13 @@ class FileImportService {
     int timeOffset = 0;
 
     for (final trkpt in trkpts) {
-      final pointLat = double.tryParse(trkpt.getAttribute('lat') ?? '') ?? 0.0;
-      final pointLon = double.tryParse(trkpt.getAttribute('lon') ?? '') ?? 0.0;
+      final pointLat = double.tryParse(trkpt.getAttribute('lat') ?? '');
+      final pointLon = double.tryParse(trkpt.getAttribute('lon') ?? '');
       final ele = double.tryParse(
         trkpt.findElements('ele').firstOrNull?.innerText ?? '',
       );
+
+      if (pointLat == null || pointLon == null) continue;
 
       if (lastLat != null && lastLon != null) {
         totalDistance += _calculateDistance(
@@ -91,11 +96,11 @@ class FileImportService {
 
       streams.add(
         ActivityStreamsCompanion.insert(
-          activityId: file.path.split('/').last.split('\\').last,
+          activityId: activityId,
           timeOffsetSeconds: timeOffset,
           latitude: Value(pointLat),
           longitude: Value(pointLon),
-          altitudeMeters: Value(ele),
+          altitudeMeters: ele != null ? Value(ele) : const Value.absent(),
           distanceMeters: Value(totalDistance),
         ),
       );
@@ -105,18 +110,23 @@ class FileImportService {
       timeOffset++;
     }
 
+    if (streams.isEmpty) return;
+
     final movingTime = streams.length;
+    final elevationGain = _calculateElevationGain(streams);
+    final now = DateTime.now().toUtc();
+    
     final activity = ActivitiesCompanion.insert(
-      id: file.path.split('/').last.split('\\').last,
+      id: activityId,
       name: name,
       sportType: SportType.run,
       startDate: startDate,
       movingTimeSeconds: movingTime,
       elapsedTimeSeconds: movingTime,
-      distanceMeters: Value(totalDistance),
-      elevationGainMeters: Value(_calculateElevationGain(streams)),
-      createdAt: DateTime.now().toUtc(),
-      updatedAt: DateTime.now().toUtc(),
+      distanceMeters: totalDistance > 0 ? Value(totalDistance) : const Value.absent(),
+      elevationGainMeters: elevationGain > 0 ? Value(elevationGain) : const Value.absent(),
+      createdAt: now,
+      updatedAt: now,
     );
 
     await database.into(database.activities).insert(activity);
@@ -159,11 +169,13 @@ class FileImportService {
     double? lastAlt;
 
     for (final stream in streams) {
-      final alt = stream.altitudeMeters.value;
+      final alt = stream.altitudeMeters.present ? stream.altitudeMeters.value : null;
       if (alt != null && lastAlt != null && alt > lastAlt) {
         gain += alt - lastAlt;
       }
-      lastAlt = alt;
+      if (alt != null) {
+        lastAlt = alt;
+      }
     }
 
     return gain;

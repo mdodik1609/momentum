@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_theme.dart';
+import '../../providers/personal_records_provider.dart';
+import '../../providers/analytics_provider.dart';
+import '../../widgets/heart_rate_zones_chart.dart';
+import 'package:intl/intl.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final heartRateZones = ref.watch(heartRateZonesProvider);
+    final personalRecords = ref.watch(personalRecordsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -71,15 +78,76 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Sections
-            ListTile(
-              leading: const Icon(Icons.fitness_center),
-              title: const Text('Personal Records'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Navigate to PRs
-              },
+            
+            // Heart Rate Zones
+            heartRateZones.when(
+              data: (zones) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: HeartRateZonesChart(zones: zones),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
             ),
+            const SizedBox(height: 24),
+            
+            // Personal Records
+            personalRecords.when(
+              data: (records) {
+                if (records.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Personal Records',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ...records.map((record) => Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.stravaOrange,
+                          child: const Icon(Icons.emoji_events, color: Colors.white),
+                        ),
+                        title: Text(record.distanceLabel),
+                        subtitle: Text(record.activityName),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              record.timeFormatted,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.stravaOrange,
+                              ),
+                            ),
+                            Text(
+                              record.paceFormatted,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.stravaGray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )),
+                    const SizedBox(height: 24),
+                  ],
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+            
+            // Sections
             ListTile(
               leading: const Icon(Icons.analytics),
               title: const Text('Analytics'),

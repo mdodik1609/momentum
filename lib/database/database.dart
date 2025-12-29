@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import '../models/activity.dart';
+import '../models/activity.dart' show Activities, ActivityStreams, SportType, SportTypeConverter;
 
 part 'database.g.dart';
 

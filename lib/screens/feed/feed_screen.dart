@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../providers/activities_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../models/activity.dart';
+import '../../database/database.dart';
+import '../../models/activity.dart' show SportType;
+import '../activity_detail/activity_detail_screen.dart';
 
 class FeedScreen extends ConsumerWidget {
   const FeedScreen({super.key});
@@ -81,7 +83,14 @@ class FeedScreen extends ConsumerWidget {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    // Navigate to activity detail
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ActivityDetailScreen(
+                          activityId: activity.id,
+                        ),
+                      ),
+                    );
                   },
                 ),
               );
