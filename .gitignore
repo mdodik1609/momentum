@@ -37,12 +37,18 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# IntelliJ
+# IntelliJ / Android Studio
 *.iml
 .idea/
 !.idea/codeStyles/
 !.idea/runConfigurations.xml
 !.idea/tasks.xml
+!.idea/codeStyles.xml
+
+# Old Android native app (replaced by Flutter)
+/app/
+/build.gradle.kts
+/settings.gradle.kts
 
 # Keystore files
 *.jks
@@ -82,6 +88,10 @@ lint/tmp/
 .packages
 .pub-cache/
 .pub/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
 pubspec.lock
 flutter_*.png
 linked_*.ds
